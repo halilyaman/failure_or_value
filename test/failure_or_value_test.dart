@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:failure_or_value/failure_or_value.dart';
@@ -14,27 +12,27 @@ class Failure {
 void main() {
   group('Basic functionalities', () {
     Either<Failure, int> getFailure() {
-      return failure(Failure());
+      return Either.failure(Failure());
     }
     Either<Failure, int> getNumber() {
-      return success(10);
+      return const Either.value(10);
     }
 
     void voidFunc() {}
     Either<Failure, void> failureOrVoid() {
       try {
         final r = voidFunc();
-        return success(r);
+        return Either.value(r);
       } on Exception catch(e, st) {
-        return failure(Failure(e, st));
+        return Either.failure(Failure(e, st));
       }
     }
 
     test('failure or void test', () {
       final failureOrSuccess = failureOrVoid();
-      final e = failureOrSuccess.fold(
-        (failure) => false,
-        (value) => true,
+      final e = failureOrSuccess.when(
+        failure: (failure) => false,
+        value: (value) => true,
       );
       expect(true, e);
     });
@@ -51,14 +49,14 @@ void main() {
     test('fold is working', () {
       final failureOrSuccess1 = getFailure();
       final failureOrSuccess2 = getNumber();
-      final result1 = failureOrSuccess1.fold(
-        (failure) => 'Failure',
-        (value) => 'Success',
+      final result1 = failureOrSuccess1.when(
+        failure: (failure) => 'Failure',
+        value: (value) => 'Success',
       );
       expect('Failure', result1);
-      final result2 = failureOrSuccess2.fold(
-        (failure) => 'Failure',
-        (value) => 'Success',
+      final result2 = failureOrSuccess2.when(
+        failure: (failure) => 'Failure',
+        value: (value) => 'Success',
       );
       expect('Success', result2);
     });
